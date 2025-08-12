@@ -35,21 +35,21 @@ resource "aws_internet_gateway" "app" {
 }
 
 resource "aws_subnet" "public_subnet1" {
-  cidr_block              = var.aws_subnet_cidr[0]
+  cidr_block              = var.vpc_public_subnets_cidr_block[0]
   vpc_id                  = aws_vpc.app.id
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[0] # Use the first available AZ
 
-  tags                    = local.common_tags
+  tags = local.common_tags
 }
 
 resource "aws_subnet" "public_subnet2" {
-  cidr_block              = var.aws_subnet_cidr[1]
+  cidr_block              = var.vpc_public_subnets_cidr_block[1]
   vpc_id                  = aws_vpc.app.id
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[1] # Use the first available AZ
 
-  tags                    = local.common_tags
+  tags = local.common_tags
 }
 
 # ROUTING #

@@ -4,7 +4,7 @@ resource "aws_lb" "nginx_lb" {
   name               = "global-nginx-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg]
+  security_groups    = [aws_security_group.alb_sg.id]
   subnets            = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]
 
   enable_deletion_protection = false
@@ -18,15 +18,6 @@ resource "aws_lb_target_group" "nginx_tg" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.app.id
-
-  health_check {
-    path                = "/"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-
   tags = local.common_tags
 }
 
