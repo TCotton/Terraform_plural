@@ -33,9 +33,9 @@ variable "aws_vpc_cidr" {
 }
 
 variable "aws_subnet_cidr" {
-  type        = string
+  type        = list(string)
   description = "CIDR block for the public subnet"
-  default     = "10.0.0.0/24"
+  default     = ["10.0.0.0/24", "10.0.0.0/24"]
 }
 
 variable "aws_app_route_table_cidr" {
