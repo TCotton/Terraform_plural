@@ -63,3 +63,9 @@ variable "billing_code" {
   description = "Billing code for resource tagging"
   default     = "WEBAPP-001"
 }
+
+variable "stage_name" {
+  type        = string
+  description = "Stage name (e.g. dev, prod)"
+  default     = "dev"
+}

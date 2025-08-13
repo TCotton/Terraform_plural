@@ -1,12 +1,3 @@
-##################################################################################
-# PROVIDERS
-##################################################################################
-
-provider "aws" {
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
-  region     = var.aws_region
-}
 
 ##################################################################################
 # DATA
@@ -75,7 +66,7 @@ resource "aws_route_table_association" "app_public_subnet2" {
 }
 
 # SECURITY GROUPS #
-# Nginx security group 
+# Nginx security group
 resource "aws_security_group" "nginx_sg" {
   name   = "nginx_sg"
   vpc_id = aws_vpc.app.id

@@ -1,4 +1,8 @@
-# aws_lb
+# aws_elb_service_account
+data "aws_elb_service_account" "root" {
+  # This data source is used to get the AWS ELB service account for S3 bucket policy
+}
+
 resource "aws_lb" "nginx" {
   name               = "globo-web-alb"
   internal           = false
@@ -7,6 +11,12 @@ resource "aws_lb" "nginx" {
   subnets            = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]
 
   enable_deletion_protection = false
+
+  access_logs {
+    bucket  = local.s3_bucket_name
+    enabled = true
+    prefix  = "alb-logs"
+  }
 
   tags = local.common_tags
 }
