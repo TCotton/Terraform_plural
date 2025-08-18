@@ -1,35 +1,37 @@
 variable "aws_access_key" {
   type        = string
-  description = "AWS access key"
+  description = "AWS Access Key"
   sensitive   = true
 }
 
 variable "aws_secret_key" {
   type        = string
-  description = "AWS secret key"
+  description = "AWS Secret Key"
   sensitive   = true
 }
 
 variable "aws_region" {
-  type        = list(string)
-  description = "AWS region"
-  default     = ["us-east-1", "us-west-2"]
-}
-
-variable "aws_instance_sizes" {
-  type        = map(string)
-  description = "Instance sizes to use in AWS"
-  default = {
-    small  = "t3.micro"
-    medium = "t3.small"
-    large  = "t3.medium"
-  }
-}
-
-variable "aws_vpc_cidr" {
   type        = string
-  description = "CIDR block for the VPC"
+  description = "Region for AWS Resources"
+  default     = "us-east-1"
+}
+
+variable "enable_dns_hostnames" {
+  type        = bool
+  description = "Enable DNS hostnames in VPC"
+  default     = true
+}
+
+variable "vpc_cidr_block" {
+  type        = string
+  description = "Base CIDR Block for VPC"
   default     = "10.0.0.0/16"
+}
+
+variable "vpc_public_subnet_count" {
+  type        = number
+  description = "Number of Public Subnets to create"
+  default     = 2
 }
 
 variable "vpc_public_subnets_cidr_block" {
@@ -37,27 +39,46 @@ variable "vpc_public_subnets_cidr_block" {
   description = "CIDR Block for Public Subnets in VPC"
   default     = ["10.0.0.0/24", "10.0.1.0/24"]
 }
+#"10.0.0.0/24" / "10.0.1.0/24"
 
-variable "aws_app_route_table_cidr" {
-  type        = string
-  description = "CIDR block for the app route table"
-  default     = "0.0.0.0/0"
+variable "map_public_ip_on_launch" {
+  type        = bool
+  description = "Map a public IP address for Subnet instances"
+  default     = true
 }
 
-variable "company_name" {
+variable "instance_type" {
   type        = string
-  description = "Company name"
-  default     = "Globo"
+  description = "Type for EC2 Instance"
+  default     = "t3.micro"
 }
 
-variable "project_name" {
+variable "instance_count" {
+  type        = number
+  description = "Number of EC2 Instances to create"
+  default     = 2
+}
+
+variable "company" {
   type        = string
-  description = "Project name"
+  description = "Company name for resource tagging"
+  default     = "Globomantics"
+}
+
+variable "project" {
+  type        = string
+  description = "Project name for resource tagging"
   default     = "WebApp"
 }
 
 variable "billing_code" {
   type        = string
-  description = "Billing code for the project"
+  description = "Billing code for resource tagging"
   default     = "WEBAPP-001"
+}
+
+variable "stage_name" {
+  type        = string
+  description = "Stage name (e.g. dev, prod)"
+  default     = "dev"
 }

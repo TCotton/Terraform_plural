@@ -1,18 +1,8 @@
-##################################################################################
-# PROVIDERS
-##################################################################################
-
-provider "aws" {
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
-  region     = var.aws_region[0]
-}
 
 ##################################################################################
 # DATA
 ##################################################################################
 
-# Declare the data source
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -23,31 +13,24 @@ data "aws_availability_zones" "available" {
 
 # NETWORKING #
 resource "aws_vpc" "app" {
-  cidr_block           = var.aws_vpc_cidr
-  enable_dns_hostnames = true
-  tags                 = local.common_tags
-
-}
-
-resource "aws_internet_gateway" "app" {
-  vpc_id = aws_vpc.app.id
-  tags   = local.common_tags
-}
-
-resource "aws_subnet" "public_subnet1" {
-  cidr_block              = var.vpc_public_subnets_cidr_block[0]
-  vpc_id                  = aws_vpc.app.id
-  map_public_ip_on_launch = true
-  availability_zone       = data.aws_availability_zones.available.names[0] # Use the first available AZ
+  cidr_block           = var.vpc_cidr_block
+  enable_dns_hostnames = var.enable_dns_hostnames
 
   tags = local.common_tags
 }
 
-resource "aws_subnet" "public_subnet2" {
-  cidr_block              = var.vpc_public_subnets_cidr_block[1]
+resource "aws_internet_gateway" "app" {
+  vpc_id = aws_vpc.app.id
+
+  tags = local.common_tags
+}
+
+resource "aws_subnet" "public_subnets" {
+  count                   = var.vpc_public_subnet_count
+  cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, count.index) # This assumes /24 subnets; adjust as needed
   vpc_id                  = aws_vpc.app.id
-  map_public_ip_on_launch = true
-  availability_zone       = data.aws_availability_zones.available.names[1] # Use the first available AZ
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = var.map_public_ip_on_launch
 
   tags = local.common_tags
 }
@@ -57,19 +40,16 @@ resource "aws_route_table" "app" {
   vpc_id = aws_vpc.app.id
 
   route {
-    cidr_block = var.aws_app_route_table_cidr
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.app.id
   }
+
   tags = local.common_tags
 }
 
-resource "aws_route_table_association" "app_subnet1" {
-  subnet_id      = aws_subnet.public_subnet1.id
-  route_table_id = aws_route_table.app.id
-}
-
-resource "aws_route_table_association" "app_public_subnet2" {
-  subnet_id      = aws_subnet.public_subnet2.id
+resource "aws_route_table_association" "app_public_subnet" {
+  count          = var.vpc_public_subnet_count
+  subnet_id      = aws_subnet.public_subnets[count.index].id
   route_table_id = aws_route_table.app.id
 }
 
@@ -78,14 +58,13 @@ resource "aws_route_table_association" "app_public_subnet2" {
 resource "aws_security_group" "nginx_sg" {
   name   = "nginx_sg"
   vpc_id = aws_vpc.app.id
-  tags   = local.common_tags
 
   # HTTP access from anywhere
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [var.aws_vpc_cidr]
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   # outbound internet access
@@ -95,12 +74,14 @@ resource "aws_security_group" "nginx_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = local.common_tags
 }
 
+# ALB Security Group
 resource "aws_security_group" "alb_sg" {
   name   = "nginx_alb_sg"
   vpc_id = aws_vpc.app.id
-  tags   = local.common_tags
 
   # HTTP access from anywhere
   ingress {
@@ -117,7 +98,6 @@ resource "aws_security_group" "alb_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = local.common_tags
 }
-
-
-
