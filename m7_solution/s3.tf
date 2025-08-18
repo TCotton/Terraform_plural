@@ -45,7 +45,7 @@ resource "aws_s3_bucket_policy" "web_bucket" {
   ]
 }
     POLICY
-    
+
 }
 
 resource "aws_s3_object" "website_content" {

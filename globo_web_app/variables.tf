@@ -82,3 +82,15 @@ variable "stage_name" {
   description = "Stage name (e.g. dev, prod)"
   default     = "dev"
 }
+
+variable "naming_prefix" {
+  type        = string
+  description = "Prefix for resource names"
+  default     = "globo-web-app"
+}
+
+variable "environment" {
+  type        = string
+  description = "Environment for the application (e.g. dev, prod)"
+  default     = "dev"
+}

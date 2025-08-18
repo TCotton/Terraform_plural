@@ -22,7 +22,9 @@ resource "aws_vpc" "app" {
 resource "aws_internet_gateway" "app" {
   vpc_id = aws_vpc.app.id
 
-  tags = local.common_tags
+  tags = merge(local.common_tags, {
+    Name = "app_internet_gateway"
+  })
 }
 
 resource "aws_subnet" "public_subnets" {
